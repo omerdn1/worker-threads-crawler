@@ -1,12 +1,13 @@
 {
   "compilerOptions": {
-    "noEmit": true,
-    "strict": true,
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "esModuleInterop": true,
-    "removeComments": true
+    "removeComments": true,
+    "declaration": true,
+    "rootDir": "./src",
+    "allowSyntheticDefaultImports": true,
+    "outDir": "dist"
   },
   "awesomeTypescriptLoaderOptions": {
     "useBabel": true,
