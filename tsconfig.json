@@ -1,17 +1,17 @@
 {
   "compilerOptions": {
+    "emitDeclarationOnly": true,
+    "declaration": true,
+    "declarationDir": "./types",
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "removeComments": true,
-    "declaration": true,
     "rootDir": "./src",
-    "allowSyntheticDefaultImports": true,
-    "outDir": "dist"
+    "allowSyntheticDefaultImports": true
   },
   "awesomeTypescriptLoaderOptions": {
     "useBabel": true,
     "babelCore": "@babel/core"
   },
-  "exclude": ["node_modules", "dist"]
+  "exclude": ["node_modules", "dist", "types"]
 }

@@ -1,17 +1,6 @@
 import { Headers, Response } from 'request';
 import { Options as JSDOMOptions, DOMWindow } from 'jsdom';
 
-export interface CheerioOptions {
-  xmlMode?: boolean;
-  decodeEntities?: boolean;
-  lowerCaseTags?: boolean;
-  lowerCaseAttributeNames?: boolean;
-  recognizeCDATA?: boolean;
-  recognizeSelfClosing?: boolean;
-  normalizeWhitespace?: boolean;
-  ignoreWhitespace?: boolean;
-}
-
 export interface CrawlerGlobalOnlyOptions {
   maxWorkers: number;
   proxies?: string[];
@@ -35,7 +24,7 @@ export interface CrawlerOptions {
   headers?: Headers;
   cheerio: {
     enable: boolean;
-    options: CheerioOptions;
+    options: CheerioOptionsInterface;
   };
   jsdom?: {
     enable?: boolean;

@@ -100,7 +100,7 @@ class Crawler {
 
   private injectCheerio = (
     response: CrawlerResponse,
-    cheerioOptions?: CheerioOptionsInterface,
+    cheerioOptions: CheerioOptionsInterface,
   ) => {
     const $ = cheerio.load(response.body, cheerioOptions);
 
