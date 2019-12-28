@@ -1,11 +1,13 @@
 import { Worker } from 'worker_threads';
+import cheerio from 'cheerio';
+import { JSDOM, Options as JSDOMOptions } from 'jsdom';
 import merge from 'lodash.merge';
-import serialize from 'serialize-javascript';
 import deserialize from './deserialize';
 import {
   CrawlerOptions,
   CrawlerGlobalOnlyOptions,
   CrawlerExtendedRequestOptions,
+  CrawlerResponse,
 } from './interfaces';
 
 class Crawler {
@@ -51,7 +53,7 @@ class Crawler {
   private scheduleWorker = (
     options: CrawlerExtendedRequestOptions | CrawlerOptions,
   ) => {
-    const mergedOptions = merge({}, this.options, options);
+    const { callback, ...workerOptions } = merge({}, this.options, options);
     // TODO:
     // Apply priority
     // ...
@@ -59,14 +61,59 @@ class Crawler {
     const worker = new Worker(
       './node_modules/worker-threads-crawler/dist/worker.js',
       {
-        workerData: { options: serialize(mergedOptions) },
+        workerData: { options: workerOptions },
       },
     );
-    worker.once('message', serializedOptions => {
-      const options: CrawlerOptions = deserialize(serializedOptions);
-      console.log('message recieved from worker with options: ', options);
-      this.scheduleWorker(options);
-    });
+    worker.once(
+      'message',
+      ({
+        error,
+        serializedRepsonse,
+      }: {
+        error: Error;
+        serializedRepsonse: string;
+      }) => {
+        if (error) {
+          console.log(
+            'message recieved from worker with options: ',
+            workerOptions,
+          );
+          return this.scheduleWorker(workerOptions);
+        }
+
+        const response = deserialize(serializedRepsonse);
+        const { cheerio, jsdom } = workerOptions;
+
+        if (cheerio?.enable) {
+          const $ = this.injectCheerio(response, cheerio.options);
+          response.$ = $;
+        }
+
+        if (jsdom?.enable) {
+          const window = this.injectJsdom(response, jsdom.options);
+          response.window = window;
+        }
+        return callback(null, response, () => worker.terminate());
+      },
+    );
+  };
+
+  private injectCheerio = (
+    response: CrawlerResponse,
+    cheerioOptions?: CheerioOptionsInterface,
+  ) => {
+    const $ = cheerio.load(response.body, cheerioOptions);
+
+    return $;
+  };
+
+  private injectJsdom = (
+    response: CrawlerResponse,
+    jsdomOptions?: JSDOMOptions,
+  ) => {
+    const { window } = new JSDOM(response.body, jsdomOptions);
+
+    return window;
   };
 }
 

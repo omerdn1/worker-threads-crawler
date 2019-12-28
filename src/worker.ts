@@ -1,21 +1,21 @@
 import { workerData, parentPort, threadId } from 'worker_threads';
 import request from 'request';
-import cheerio from 'cheerio';
-import { JSDOM, Options as JSDOMOptions } from 'jsdom';
 import serialize from 'serialize-javascript';
-import deserialize from './deserialize';
 import {
   CrawlerGlobalOnlyOptions,
   CrawlerOptions,
   CrawlerExtendedRequestOptions,
   CrawlerResponse,
-  CheerioOptions,
 } from './interfaces';
 
 const buildRequest = () => {
-  const options: CrawlerGlobalOnlyOptions &
-    CrawlerExtendedRequestOptions &
-    CrawlerOptions = deserialize(workerData.options);
+  const {
+    options,
+  }: {
+    options: CrawlerGlobalOnlyOptions &
+      CrawlerExtendedRequestOptions &
+      CrawlerOptions;
+  } = workerData;
 
   console.log(`Thread ID: ${threadId}, ${options.method}: ${options.uri}`);
 
@@ -36,7 +36,7 @@ const buildRequest = () => {
         return onRejection(error, options);
       }
 
-      return onResponse(response, options);
+      return onResponse(response);
     },
   );
 };
@@ -51,7 +51,7 @@ const onRejection = (error: Error, options: CrawlerOptions) => {
     return setTimeout(() => {
       options.retries -= 1;
       if (parentPort) {
-        parentPort.postMessage(serialize(options));
+        parentPort.postMessage({ error });
       }
       process.exit();
       // TODO:
@@ -62,38 +62,7 @@ const onRejection = (error: Error, options: CrawlerOptions) => {
   return options.callback(error, null, () => process.exit());
 };
 
-const onResponse = (response: CrawlerResponse, options: CrawlerOptions) => {
-  const { cheerio, jsdom } = options;
-
-  if (cheerio?.enable) {
-    const $ = injectCheerio(response, cheerio.options);
-    response.$ = $;
-  }
-
-  if (jsdom?.enable) {
-    const window = injectJsdom(response, jsdom.options);
-    response.window = window;
-  }
-
-  return options.callback(null, response, () => process.exit());
-};
-
-const injectCheerio = (
-  response: CrawlerResponse,
-  cheerioOptions?: CheerioOptions,
-) => {
-  const $ = cheerio.load(response.body, cheerioOptions);
-
-  return $;
-};
-
-const injectJsdom = (
-  response: CrawlerResponse,
-  jsdomOptions?: JSDOMOptions,
-) => {
-  const { window } = new JSDOM(response.body, jsdomOptions);
-
-  return window;
-};
+const onResponse = (response: CrawlerResponse) =>
+  parentPort.postMessage({ serializedRepsonse: serialize(response) });
 
 buildRequest();
