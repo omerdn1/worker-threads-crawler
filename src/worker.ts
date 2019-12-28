@@ -1,7 +1,9 @@
-import { workerData, parentPort } from 'worker_threads';
+import { workerData, parentPort, threadId } from 'worker_threads';
 import request from 'request';
 import cheerio from 'cheerio';
 import { JSDOM, Options as JSDOMOptions } from 'jsdom';
+import serialize from 'serialize-javascript';
+import deserialize from './deserialize';
 import {
   CrawlerGlobalOnlyOptions,
   CrawlerOptions,
@@ -13,9 +15,9 @@ import {
 const buildRequest = () => {
   const options: CrawlerGlobalOnlyOptions &
     CrawlerExtendedRequestOptions &
-    CrawlerOptions = workerData;
+    CrawlerOptions = deserialize(workerData.options);
 
-  console.log(`${options.method}: ${options.uri}`);
+  console.log(`Thread ID: ${threadId}, ${options.method}: ${options.uri}`);
 
   request(
     options.uri,
@@ -47,8 +49,9 @@ const onRejection = (error: Error, options: CrawlerOptions) => {
     return setTimeout(() => {
       options.retries -= 1;
       if (parentPort) {
-        parentPort.postMessage(options);
+        parentPort.postMessage(serialize(options));
       }
+      process.exit();
       // TODO:
       // Release worker
     }, options.retryTimeout);
@@ -77,15 +80,7 @@ const injectCheerio = (
   response: CrawlerResponse,
   cheerioOptions?: CheerioOptions,
 ) => {
-  const defaultCheerioOptions = {
-    normalizeWhitespace: false,
-    xmlMode: false,
-    decodeEntities: true,
-  };
-  const $ = cheerio.load(
-    response.body,
-    cheerioOptions || defaultCheerioOptions,
-  );
+  const $ = cheerio.load(response.body, cheerioOptions);
 
   return $;
 };

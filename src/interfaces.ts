@@ -32,15 +32,15 @@ export interface CrawlerOptions {
     log: (level: string, ...args: any[]) => void;
   }; */
   headers?: Headers;
-  cheerio?: {
-    enable?: boolean;
-    options?: CheerioOptions;
+  cheerio: {
+    enable: boolean;
+    options: CheerioOptions;
   };
   jsdom?: {
     enable?: boolean;
     options?: JSDOMOptions;
   };
-  callback: (
+  callback?: (
     err: Error | null,
     res: CrawlerResponse | null,
     done: () => void,
