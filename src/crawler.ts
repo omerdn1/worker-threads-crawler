@@ -1,17 +1,18 @@
 import { Worker } from 'worker_threads';
 import merge from 'lodash.merge';
 import serialize from 'serialize-javascript';
+import deserialize from './deserialize';
 import {
   CrawlerOptions,
   CrawlerGlobalOnlyOptions,
   CrawlerExtendedRequestOptions,
 } from './interfaces';
-import deserialize from './deserialize';
 
 class Crawler {
   private defaultOptions: CrawlerGlobalOnlyOptions & CrawlerOptions = {
     maxWorkers: 10,
     method: 'GET',
+    gzip: true,
     priority: 5,
     priorityRange: 10,
     retries: 3,

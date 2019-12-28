@@ -22,6 +22,8 @@ const buildRequest = () => {
   request(
     options.uri,
     {
+      method: options.method,
+      gzip: options.gzip,
       headers: options.headers,
       timeout: options.timeout,
       // Rotate proxies if provided

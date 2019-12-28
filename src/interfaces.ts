@@ -21,6 +21,7 @@ export interface CrawlerGlobalOnlyOptions {
 export interface CrawlerOptions {
   uri?: string;
   method: string;
+  gzip: boolean;
   referer?: false | string;
   retries: number;
   priority: number;
