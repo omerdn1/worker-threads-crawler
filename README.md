@@ -1,8 +1,8 @@
 # worker-threads-crawler
 
-Experimental worker threads (`worker_threads`) web crawler/spider. Inspired by [node-crawler](https://github.com/bda-research/node-crawler).
+NodeJS worker threads (`worker_threads`) web crawler/spider. Inspired by [node-crawler](https://github.com/bda-research/node-crawler).
 
-_Note: This is an experiment with the newly added worker threads feature that became available in Node.js version 11.7.0_
+_Note: worker threads became available in Node.js v. 11.7.0_
 
 ## Get started
 
