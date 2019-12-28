@@ -1,7 +1,7 @@
 {
   "name": "worker-threads-crawler",
   "version": "1.0.7",
-  "description": "Experimental worker threads web crawler/spider inspired by node-crawler",
+  "description": "NodeJS worker threads web crawler/spider",
   "author": "Omer Dangoor",
   "license": "MIT",
   "main": "dist/crawler.js",
